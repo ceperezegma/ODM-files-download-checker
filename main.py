@@ -20,6 +20,7 @@ def main():
     # Step 2: Navigate all tabs and download files
     visit_all_tabs(page)
 
+    # TODO: I'm here!!
     # Step 3: Validate downloaded files
     validation_results = validate_downloads(EXPECTED_FILES_PATH)
 

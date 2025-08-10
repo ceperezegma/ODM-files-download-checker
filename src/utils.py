@@ -1,5 +1,8 @@
 import os
 
+########################################
+# Retrieve ids for charts and resources
+########################################
 def retrieve_chart_menu_ids(page, tab_name):
 
     save_and_share_ids_tab = {
@@ -50,6 +53,44 @@ def retrieve_chart_menu_ids(page, tab_name):
     return save_and_share_ids_tab
 
 
+def retrieve_resources_files_ids(page, tab_name):
+    resources_file_ids_tab = []
+
+    print("[*] Searching for download buttons...")
+
+    download_links = page.locator("a:has(span:has-text('Download'))")
+    count = download_links.count()
+    print(f"\n[i] Found {count} resources to download")
+
+    match tab_name:
+        case 'Open Data in Europe 2024':
+            indices = range(0, 3)
+            resources_file_ids_tab = [download_links.nth(i).get_attribute('href') for i in indices]
+        case 'Recommendations':
+            # 🚨TODO: To implement this case when in PROD
+            indices = range(3, 11)
+            # resources_file_ids_tab = [download_links.nth(i).get_attribute('href') for i in indices]
+        case 'Dimensions':
+            indices = range(3, 11)
+            resources_file_ids_tab = [download_links.nth(i).get_attribute('href') for i in indices]
+        case 'Country profiles':
+            indices = range(11, 31)
+            resources_file_ids_tab = [download_links.nth(i).get_attribute('href') for i in indices]
+        case 'Method and resources':
+            indices = range(31, 41)
+            resources_file_ids_tab = [download_links.nth(i).get_attribute('href') for i in indices]
+
+    return resources_file_ids_tab
+
+def remove_duplicates_resources_id(resources_list):
+    # Remove duplicate strings while preserving order
+    return list(dict.fromkeys(resources_list))
+
+
+
+################################
+# Download charts and resources
+################################
 def download_from_charts(page, tab_dir, charts_menu_ids):
     download_options = [
         'Download image - PNG',
@@ -99,7 +140,7 @@ def download_from_charts(page, tab_dir, charts_menu_ids):
                             # Click with download expectation
                             with page.expect_download() as download_info:
                                 option.click()
-                                page.wait_for_timeout(1500)
+                                # page.wait_for_timeout(1500)
                             
                             # Process the download
                             download = download_info.value
@@ -133,26 +174,43 @@ def download_from_charts(page, tab_dir, charts_menu_ids):
             break
 
 
+def download_from_resources(page, tab_dir, resources_urls):
 
-
-
-
-# TODO
-def download_from_resources(page, tab_dir, num_pdfs=0, num_excels=0):
     print("[*] Downloading from resources section...")
-    total = num_pdfs + num_excels
-    download_buttons = page.locator("button:has-text('Download')")
+    total_resources = len(resources_urls)
+    print(f"Total resources to download: {total_resources}")
 
-    for i in range(total):
+    for i, item in enumerate(resources_urls):
         try:
-            with page.expect_download() as download_info:
-                download_buttons.nth(i).click()
-            download = download_info.value
-            file_path = os.path.join(tab_dir, download.suggested_filename)
-            abs_file_path = os.path.abspath(file_path)
-            download.save_as(file_path)
-            print(f"    ↳ Downloaded {download.suggested_filename}")
-            print(f"    📁 Saved to: {abs_file_path}")
-        except Exception as e:
-            print(f"    [!] Failed to download resource {i+1}: {e}")
+            link = str(item).strip()
+            if not link:
+                print(f"    [❌] Resource {i}: empty link, skipping.")
+                continue
 
+            # 1) Try an exact link match by accessible name
+            loc = page.locator(f"a[href='{link}']")
+            count = loc.count()
+
+            # 2) Relax to partial link name
+            if count == 0:
+                loc = page.get_by_role("link", name=link)
+                count = loc.count()
+
+            # 3) Fallback to any element containing the exact text
+            if count == 0:
+                loc = page.get_by_text(link, exact=True)
+                count = loc.count()
+
+            if count == 0:
+                print(f"    [!] Resource {i}: '{link}' not found on the page.")
+                continue
+
+            if count > 1:
+                print(f"    [!] Resource {i}: multiple matches found ({count}). Clicking the first one.")
+
+            target = loc.first
+            target.scroll_into_view_if_needed()
+            target.click()
+            print(f"    ↳ Clicked resource {i}: '{link}'")
+        except Exception as e:
+            print(f"    [!] Failed to process resource {i} ('{item}'): {e}")

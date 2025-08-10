@@ -1,6 +1,7 @@
 import os
+# TODO: To remove? from importlib.resources.readers import remove_duplicates
 from pathlib import Path
-from src.utils import retrieve_chart_menu_ids, download_from_resources, download_from_charts
+from src.utils import retrieve_chart_menu_ids, download_from_resources, download_from_charts, retrieve_resources_files_ids, remove_duplicates_resources_id
 from src.tab_visitor import retrieve_buttons, select_button
 from config import DOWNLOAD_DIR
 
@@ -15,16 +16,34 @@ def download_all_files(page, tab_name):
     tab_dir = os.path.join(DOWNLOAD_DIR, tab_name.replace(" ", "_"))
     Path(tab_dir).mkdir(parents=True, exist_ok=True)
 
+    resources_urls_tabs = []
+
     # Define what to download based on tab
     match tab_name:
         case 'Open Data in Europe 2024':
-            # Retrieve tab ODM Save & share charts menu ids
-            charts_menus_ids = retrieve_chart_menu_ids(page, tab_name)
+            # # Retrieve tab ODM Save & share charts menu ids
+            # charts_menus_ids = retrieve_chart_menu_ids(page, tab_name)
+            #
+            # # Download charts in the tab
+            # download_from_charts(page, tab_dir, charts_menus_ids['open_data_in_europe'])
 
-            # Download charts in the tab
-            download_from_charts(page, tab_dir, charts_menus_ids['open_data_in_europe'])
+            # Download resources
+            resources_urls_tabs = retrieve_resources_files_ids(page, tab_name)
+            # Removes duplicates in ids
+            resources_urls_tabs_clean = remove_duplicates_resources_id(resources_urls_tabs)
+            # Download resources
+            download_from_resources(page, tab_dir, resources_urls_tabs_clean)
+
+            print("Tab 1")
+
         case 'Recommendations':
-            print(f"Nothing to check here!")
+            print(f"Nothing to check here for charts!")
+
+            # Download resources
+            resources_urls_tabs = retrieve_resources_files_ids(page, tab_name)
+            resources_urls_tabs_clean = remove_duplicates_resources_id(resources_urls_tabs)
+
+            print("Tab 2")
 
         case 'Dimensions':
             dimensions = ['Policy', 'Portal', 'Quality', 'Impact']
@@ -34,8 +53,14 @@ def download_all_files(page, tab_name):
             num_dimensions = len(dimensions)
             for i in range(num_dimensions):
                 select_button(page, dimension_buttons[i], dimensions[i])
-                charts_menus_ids = retrieve_chart_menu_ids(page, tab_name)
-                download_from_charts(page, tab_dir, charts_menus_ids['dimensions'])
+                # charts_menus_ids = retrieve_chart_menu_ids(page, tab_name)
+                # download_from_charts(page, tab_dir, charts_menus_ids['dimensions'])
+
+                # Download resources
+                resources_urls_tabs = retrieve_resources_files_ids(page, tab_name)
+                resources_urls_tabs_clean = remove_duplicates_resources_id(resources_urls_tabs)
+
+            print("Tab 3")
 
         case 'Country profiles':
             countries = combined = [
@@ -78,12 +103,22 @@ def download_all_files(page, tab_name):
             num_countries = len(country_buttons)
             for i in range(num_countries):
                 select_button(page, country_buttons[i], countries[i])
-                charts_menus_ids = retrieve_chart_menu_ids(page, tab_name)
-                download_from_charts(page, tab_dir, charts_menus_ids['country_profiles'])
+            #     charts_menus_ids = retrieve_chart_menu_ids(page, tab_name)
+            #     download_from_charts(page, tab_dir, charts_menus_ids['country_profiles'])
 
-                #todo 1: To add here
-                # download_from_resources(page, tab_dir, num_pdfs=2)
-        case 'Methods and resources':
-            print(f"Nothing to check here!")
+                # todo: I'm here!!
+                resources_urls_tabs = retrieve_resources_files_ids(page, tab_name)
+                resources_urls_tabs_clean = remove_duplicates_resources_id(resources_urls_tabs)
+
+            print("Tab 4")
+
+        case 'Method and resources':
+            print(f"Nothing to check here for charts!")
+
+            # Download resources
+            resources_urls_tabs.append(retrieve_resources_files_ids(page, tab_name))
+            resources_urls_tabs_clean = remove_duplicates_resources_id(resources_urls_tabs)
+
+            print("Tab 5")
 
     print(f"[✅] Downloads complete for tab: {tab_name}\n")
