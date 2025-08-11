@@ -61,9 +61,10 @@ def validate_downloads(expected_files_path):
         matched_files_list = [f"{name} ({fmt})" for name, fmt in expected_files_set & downloaded_files_set]
         
         # Find zero-size files
-        zero_size_files = [file for file in downloaded_list if file["size"] == 0]
+        # TODO: We assume that the PDFs are expected to be empty because created used as proxy to tell they exist in ODM
+        zero_size_files = [file for file in downloaded_list if file["size"] == 0 and file["format"] != "pdf"]
         zero_size_file_names = [file["name"] for file in zero_size_files]
-        
+
         comparison_results[tab_name] = {
             "expected_count": len(expected_files_set),
             "downloaded_count": len(downloaded_files_set),

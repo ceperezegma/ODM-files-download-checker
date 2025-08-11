@@ -10,7 +10,7 @@ def visit_all_tabs(page):
     }
 
     for tab_name, tab_selector in tabs.items():
-        print(f"---------------------------------")
+        print(f"\n---------------------------------")
         print(f"[*] Navigating to tab: {tab_name}")
         print(f"---------------------------------")
 
@@ -51,7 +51,5 @@ def visit_all_tabs(page):
 
         # Add logic to confirm content changed (by checking unique element)
         download_all_files(page, tab_name)
-
-        print(f"[✅] Loaded tab: {tab_name}\n")
 
 

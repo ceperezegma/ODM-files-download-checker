@@ -23,7 +23,7 @@ def generate_report(validation_results):
         print(f"   ✅ Matched:  {matched:3d} files")
         print(f"   ❌ Missing:  {missing:3d} files")
         print(f"   ➕ Extra:    {extra:3d} files")
-        print(f"   ⚠️  Zero size: {zero_size:3d} files")
+        print(f"   ⚠️  Zero size: {zero_size:3d} files - excluding proxy PDF files created for PDF resources")
 
         # Success rate
         if expected > 0:
@@ -42,7 +42,7 @@ def generate_report(validation_results):
             for i, file in enumerate(results['extra_files'], 1):
                 print(f"      {i}. {file}")
 
-        # Show zero-size files if any
+        # Show zero-size files if any (exclude PDFs as they're expected to be empty)
         if results['zero_size_files']:
             print(f"\n   ⚠️  Zero-size files ({len(results['zero_size_files'])}):")
             for i, file in enumerate(results['zero_size_files'], 1):

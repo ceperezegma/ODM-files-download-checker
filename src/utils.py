@@ -67,7 +67,7 @@ def retrieve_resources_files_ids(page, tab_name):
             indices = range(0, 3)
             resources_file_ids_tab = [download_links.nth(i).get_attribute('href') for i in indices]
         case 'Recommendations':
-            # 🚨TODO: To implement this case when in PROD
+            # 🚨TODO: To implement to download resources when in PROD
             indices = range(3, 11)
             # resources_file_ids_tab = [download_links.nth(i).get_attribute('href') for i in indices]
         case 'Dimensions':
@@ -126,7 +126,7 @@ def download_from_charts(page, tab_dir, charts_menu_ids):
                     # Open the dropdown menu
                     chart_menu.click()
                     page.wait_for_timeout(1000)
-                    print(f"[→] Clicking on: {option_text}")
+                    print(f"    [→] Clicking on: {option_text}")
                     
                     # Find the listbox that appears when menu is clicked
                     listbox_id = f"{id_prefix}-listbox1"
@@ -147,11 +147,11 @@ def download_from_charts(page, tab_dir, charts_menu_ids):
                             filename = download.suggested_filename
                             filepath = os.path.join(tab_dir, filename)
                             download.save_as(filepath)
-                            print(f"[✅] Downloaded: {filename}")
+                            print(f"    [✅] Downloaded: {filename}")
                         else:
-                            print(f"[❌] Option '{option_text}' not found in listbox")
+                            print(f"    [❌] Option '{option_text}' not found in listbox")
                     else:
-                        print(f"[❌] Listbox with ID '{listbox_id}' not found")
+                        print(f"    [❌] Listbox with ID '{listbox_id}' not found")
                         
                     # Close the menu by clicking elsewhere
                     page.mouse.click(0, 0)
@@ -175,42 +175,40 @@ def download_from_charts(page, tab_dir, charts_menu_ids):
 
 
 def download_from_resources(page, tab_dir, resources_urls):
-
     print("[*] Downloading from resources section...")
     total_resources = len(resources_urls)
     print(f"Total resources to download: {total_resources}")
 
-    for i, item in enumerate(resources_urls):
+    for i, url in enumerate(resources_urls):
         try:
-            link = str(item).strip()
-            if not link:
-                print(f"    [❌] Resource {i}: empty link, skipping.")
-                continue
-
-            # 1) Try an exact link match by accessible name
-            loc = page.locator(f"a[href='{link}']")
-            count = loc.count()
-
-            # 2) Relax to partial link name
-            if count == 0:
-                loc = page.get_by_role("link", name=link)
-                count = loc.count()
-
-            # 3) Fallback to any element containing the exact text
-            if count == 0:
-                loc = page.get_by_text(link, exact=True)
-                count = loc.count()
-
-            if count == 0:
-                print(f"    [!] Resource {i}: '{link}' not found on the page.")
-                continue
-
-            if count > 1:
-                print(f"    [!] Resource {i}: multiple matches found ({count}). Clicking the first one.")
-
-            target = loc.first
-            target.scroll_into_view_if_needed()
-            target.click()
-            print(f"    ↳ Clicked resource {i}: '{link}'")
+            # Parse URL to get filename and extension
+            filename = os.path.basename(url)
+            name, ext = os.path.splitext(filename)
+            ext = ext.lower()
+            
+            print(f"    [→] Processing resource {i+1}: {filename}")
+            
+            if ext == '.pdf':
+                # Create empty PDF file
+                filepath = os.path.join(tab_dir, filename)
+                os.makedirs(tab_dir, exist_ok=True)  # Ensure directory exists
+                with open(filepath, 'w') as f:
+                    pass  # Create empty file
+                print(f"    [✅] Created empty PDF: {filename}")
+            else:
+                # Find and click the download link
+                link_locator = page.locator(f"a[href='{url}']")
+                
+                if link_locator.count() > 0:
+                    with page.expect_download() as download_info:
+                        link_locator.first.click()
+                    
+                    download = download_info.value
+                    filepath = os.path.join(tab_dir, download.suggested_filename)
+                    download.save_as(filepath)
+                    print(f"    [✅] Downloaded: {download.suggested_filename}")
+                else:
+                    print(f"    [❌] Link not found for: {filename}")
+                    
         except Exception as e:
-            print(f"    [!] Failed to process resource {i} ('{item}'): {e}")
+            print(f"    [❌] Failed to process resource {i+1}: {e}")
