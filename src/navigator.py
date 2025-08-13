@@ -1,6 +1,45 @@
+# -*- coding: utf-8 -*-
+"""
+Tab navigation utilities.
+
+This module contains helpers to iterate through the application's tabs and
+delegate per-tab download processing to the downloader component. It uses a
+robust strategy to activate each tab, attempting both href-based and text-based
+selection, and reports navigation progress and potential issues.
+"""
+
 from src.downloader import download_all_files
 
+
 def visit_all_tabs(page):
+    """
+    Navigate through all known tabs and trigger downloads for each.
+
+    Behavior:
+    - Defines the ordered set of tabs to visit along with their expected hash/href.
+    - For each tab:
+        - Attempts to click using an href selector; if unavailable, falls back to a text-based click.
+        - Waits briefly to allow content to load.
+        - Warns if the current URL does not contain the expected tab selector.
+        - Invokes download_all_files(page, tab_name) to handle tab-specific downloads.
+    - Prints progress and diagnostic messages throughout.
+
+    Parameters:
+        page (playwright.sync_api.Page): The active Playwright page used to interact
+            with the UI and switch between tabs.
+
+    Returns:
+        None
+
+    Side Effects:
+        - Performs UI interactions (clicks, waits).
+        - Triggers downloads via the downloader component.
+        - Writes diagnostic output to stdout.
+
+    Example:
+        # After successful authentication and landing on the main page:
+        visit_all_tabs(page)
+    """
     tabs = {
         'Open Data in Europe 2024': '#open-data-in-europe-2024',
         'Recommendations': '#recommendations',
@@ -51,5 +90,3 @@ def visit_all_tabs(page):
 
         # Add logic to confirm content changed (by checking unique element)
         download_all_files(page, tab_name)
-
-

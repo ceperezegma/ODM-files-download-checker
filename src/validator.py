@@ -1,14 +1,64 @@
+# -*- coding: utf-8 -*-
+"""
+Validation utilities for downloaded artifacts.
+
+This module compares the files downloaded per tab against an expected manifest,
+and produces a structured summary of matches, missing items, extras, and basic
+file statistics for downstream reporting.
+"""
+
 import json
-import os
 from pathlib import Path
 from config import DOWNLOAD_DIR
 
+
 def validate_downloads(expected_files_path):
     """
-    Validates downloaded files against expected files.
-    
+    Validate downloaded files against an expected manifest.
+
+    Workflow:
+    - Reads the expected files specification from a JSON file.
+    - Maps tab folder names on disk to human-readable tab names in the manifest.
+    - Scans the tab-specific download folders under the configured root.
+    - Builds per-tab file lists with name, format, and size.
+    - Compares the discovered files to the expected set, computing:
+        - Missing files (present in expected, not downloaded).
+        - Extra files (downloaded but not expected).
+        - Matched files (intersection).
+        - Zero-size files excluding PDFs (PDFs may be intentionally empty).
+    - Returns a dictionary keyed by tab name with counts and details used by the reporter.
+
+    Parameters:
+        expected_files_path (str|pathlib.Path): Path to the JSON file that defines
+            the expected files per tab. Each tab maps to a list of items with at least:
+            - name (str): filename
+            - format (str): file extension without dot
+
     Returns:
-        dict: Comparison results showing missing, extra, and matched files
+        dict: A mapping of tab name to validation details:
+            {
+                "expected_count": int,
+                "downloaded_count": int,
+                "matched_count": int,
+                "missing_files": list[str],   # "name (fmt)" strings
+                "extra_files": list[str],     # "name (fmt)" strings
+                "matched_files": list[str],   # "name (fmt)" strings
+                "zero_size_count": int,
+                "zero_size_files": list[str], # filenames only
+                "downloaded_details": list[dict]  # [{name, format, size}]
+            }
+
+    Side Effects:
+        - Reads the expected manifest from disk.
+        - Walks the downloads directory tree.
+
+    Raises:
+        FileNotFoundError: If the expected files manifest does not exist.
+        json.JSONDecodeError: If the manifest file is not valid JSON.
+
+    Example:
+        results = validate_downloads("expected_files.json")
+        # Pass results to the reporting component
     """
     print(f"-------------------------------")
     print(f"[*] Validating downloaded files")

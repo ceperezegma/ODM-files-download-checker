@@ -1,14 +1,73 @@
+# -*- coding: utf-8 -*-
+"""
+Tab-aware download coordinator.
+
+This module provides the orchestration logic to download artifacts from a given tab
+in a browser-driven session. It delegates to specialized helpers to:
+- Retrieve chart menu identifiers and trigger chart downloads.
+- Gather resource URLs and download or materialize related files.
+- Iterate through dimensions or country profiles when the tab requires sub-navigation.
+
+It also ensures a tab-specific output directory exists before starting the process.
+"""
+
 import os
 from pathlib import Path
 from src.utils import retrieve_chart_menu_ids, download_from_resources, download_from_charts, retrieve_resources_files_ids, remove_duplicates_resources_id
 from src.tab_visitor import retrieve_buttons, select_button
 from config import DOWNLOAD_DIR
 
-# TODO: Check plan
-# todo 1: resources for country profiles and only the country fact sheets and questionnaire (2 files per country)
-# todo 2: detect broken links in Dimensions > tables by dimension
-
 def download_all_files(page, tab_name):
+    """
+    Download all relevant files for the specified tab.
+
+    Behavior:
+    - Creates a tab-specific directory under the configured downloads root.
+    - Based on the tab name, performs the following:
+        - Open Data in Europe 2024:
+            - Retrieves chart menu identifiers.
+            - Downloads chart exports (images/data).
+            - Collects and de-duplicates resource URLs, then downloads them.
+        - Recommendations:
+            - Skips charts.
+            - Collects and de-duplicates resource URLs, then downloads them.
+        - Dimensions (Policy, Portal, Quality, Impact):
+            - Iterates over dimension buttons:
+                - Selects each dimension.
+                - Retrieves chart menu identifiers and downloads charts.
+                - Collects, de-duplicates, and downloads resources per dimension.
+        - Country profiles:
+            - Iterates over available countries:
+                - Selects each country.
+                - Retrieves chart menu identifiers and downloads charts.
+                - Collects, de-duplicates, and downloads resources per country.
+        - Method and resources:
+            - Skips charts.
+            - Collects and de-duplicates resource URLs, then downloads them.
+    - Prints progress and status messages for traceability.
+
+    Parameters:
+        page (playwright.sync_api.Page): The active Playwright page used to interact
+            with the web UI, navigate tabs, and trigger downloads.
+        tab_name (str): The visible name of the tab to process.
+
+    Returns:
+        None
+
+    Side Effects:
+        - Creates a tab-specific directory if it does not exist.
+        - Triggers file downloads and writes files to disk.
+        - Performs UI interactions (clicks, waits, scrolling) on the given page.
+        - Writes diagnostic messages to stdout.
+
+    Raises:
+        - Any exceptions not handled by underlying helpers may propagate.
+        - File system related errors can occur when creating directories or saving files.
+
+    Example:
+        # After navigating to a tab in the UI:
+        download_all_files(page, "Open Data in Europe 2024")
+    """
     print(f"[*] Starting download process for tab: {tab_name}")
 
     # Create tab-specific directory

@@ -1,10 +1,67 @@
+# -*- coding: utf-8 -*-
+"""
+Download helper utilities.
+
+This module provides functions that encapsulate the logic for downloading files
+from two distinct UI areas:
+- Resources section: follows direct resource links, downloading files or
+  materializing placeholder PDFs when required.
+- Charts section: iterates chart menus and triggers multiple export options
+  (images/data) per chart.
+
+These helpers are intended to be called by higher-level tab-specific workflows.
+"""
+
+
 import os
 
 ########################################
 # Retrieve ids for charts and resources
 ########################################
 def retrieve_chart_menu_ids(page, tab_name):
+    """
+    Locate and collect chart menu locators and IDs for the current tab.
 
+    Behavior:
+    - Scans the active tab for chart components that expose a “Save & share” (or similar)
+      menu.
+    - Extracts a stable identifier per chart menu and the corresponding Playwright
+      Locator for interacting with it.
+    - Returns a structured mapping with per-tab categories used downstream:
+        - 'open_data_in_europe': dict with 'menu_ids' and 'chart_menus'
+        - 'dimensions': dict with 'menu_ids' and 'chart_menus'
+        - 'country_profiles': dict with 'menu_ids' and 'chart_menus'
+      Each dict contains:
+        - menu_ids (list[str]): Unique IDs that help locate the per-chart listbox/menu.
+        - chart_menus (list[playwright.sync_api.Locator]): Clickable menu locators.
+
+    Parameters:
+        page (playwright.sync_api.Page): Active Playwright page used to query and
+            interact with chart menus.
+        tab_name (str): The tab currently being processed; used to determine which
+            chart group(s) to collect.
+
+    Returns:
+        dict: A mapping of category name to a dict with:
+              {
+                  "menu_ids": list[str],
+                  "chart_menus": list[playwright.sync_api.Locator]
+              }
+              Only the category relevant to the given tab may be populated.
+
+    Notes:
+        - The returned structure aligns with download_from_charts(), which expects
+          a dict containing 'menu_ids' and 'chart_menus'.
+        - The order of items in 'menu_ids' and 'chart_menus' must match so that
+          the i-th ID corresponds to the i-th menu locator.
+        - Some charts may produce duplicate or auxiliary IDs; ensure the list is
+          filtered or ordered so the correct IDs are provided for exports.
+
+    Example:
+        charts = retrieve_chart_menu_ids(page, "Open Data in Europe 2024")
+        download_from_charts(page, tab_dir, charts["open_data_in_europe"])
+
+    """
     save_and_share_ids_tab = {
         'open_data_in_europe': {'menu_ids': [], 'chart_menus': []},
         'dimensions': {'menu_ids': [], 'chart_menus': []},
@@ -54,6 +111,35 @@ def retrieve_chart_menu_ids(page, tab_name):
 
 
 def retrieve_resources_files_ids(page, tab_name):
+    """
+    Discover resource file URLs available in the current tab.
+
+    Behavior:
+    - Locates the “Resources” section (or equivalent) in the active tab.
+    - Extracts absolute URLs for downloadable artifacts (e.g., JSON, XLSX, images, PDFs).
+    - Returns a flat list of URLs; a separate helper may remove duplicates before
+      download to avoid redundant work.
+
+    Parameters:
+        page (playwright.sync_api.Page): Active Playwright page used to locate
+            resource links.
+        tab_name (str): The tab currently being processed; used to scope the search
+            to the correct section.
+
+    Returns:
+        list[str]: A list of absolute resource URLs discovered on the page.
+
+    Notes:
+        - Duplicates may be present; call remove_duplicates_resources_id() before
+          passing the list to download_from_resources().
+        - Not all URLs need to be directly downloadable; the downstream downloader
+          handles both regular downloads and placeholder creation for certain types.
+
+    Example:
+        urls = retrieve_resources_files_ids(page, "Dimensions")
+        urls = remove_duplicates_resources_id(urls)
+        download_from_resources(page, tab_dir, urls)
+    """
     resources_file_ids_tab = []
 
     print("[*] Searching for download buttons...")
@@ -91,7 +177,117 @@ def remove_duplicates_resources_id(resources_list):
 ################################
 # Download charts and resources
 ################################
+def download_from_resources(page, tab_dir, resources_urls):
+    """
+    Download files referenced in the resources section for the current tab.
+
+    Behavior:
+    - Logs the total number of resources to process.
+    - For each URL:
+        - Determines the filename and extension.
+        - If the resource is a PDF, creates an empty placeholder PDF file in the
+          tab directory (some PDFs are proxied and represented by empty files).
+        - Otherwise:
+            - Locates the corresponding anchor element by exact href.
+            - Clicks it within a page.expect_download context.
+            - Saves the downloaded file to the tab directory using the suggested filename.
+        - Logs success or a descriptive message if the link cannot be found.
+    - Catches and logs exceptions per resource to continue processing the rest.
+
+    Parameters:
+        page (playwright.sync_api.Page): Active Playwright page to interact with links.
+        tab_dir (str|pathlib.Path): Destination directory for the downloaded artifacts.
+        resources_urls (list[str]): Absolute URLs pointing to resource files.
+
+    Returns:
+        None
+
+    Side Effects:
+        - Creates files in tab_dir (empty PDFs or downloaded artifacts).
+        - Performs UI interactions and file I/O.
+        - Prints diagnostic messages to stdout.
+
+    Example:
+        urls = ["https://example.test/file.json", "https://example.test/doc.pdf"]
+        download_from_resources(page, tab_dir, urls)
+    """
+    print("[*] Downloading from resources section...")
+    total_resources = len(resources_urls)
+    print(f"Total resources to download: {total_resources}")
+
+    for i, url in enumerate(resources_urls):
+        try:
+            # Parse URL to get filename and extension
+            filename = os.path.basename(url)
+            name, ext = os.path.splitext(filename)
+            ext = ext.lower()
+            
+            print(f"    [→] Processing resource {i+1}: {filename}")
+            
+            if ext == '.pdf':
+                # Create empty PDF file
+                filepath = os.path.join(tab_dir, filename)
+                os.makedirs(tab_dir, exist_ok=True)  # Ensure directory exists
+                with open(filepath, 'w') as f:
+                    pass  # Create empty file
+                print(f"    [✅] Created empty PDF: {filename}")
+            else:
+                # Find and click the download link
+                link_locator = page.locator(f"a[href='{url}']")
+                
+                if link_locator.count() > 0:
+                    with page.expect_download() as download_info:
+                        link_locator.first.click()
+                    
+                    download = download_info.value
+                    filepath = os.path.join(tab_dir, download.suggested_filename)
+                    download.save_as(filepath)
+                    print(f"    [✅] Downloaded: {download.suggested_filename}")
+                else:
+                    print(f"    [❌] Link not found for: {filename}")
+                    
+        except Exception as e:
+            print(f"    [❌] Failed to process resource {i+1}: {e}")
+
+
 def download_from_charts(page, tab_dir, charts_menu_ids):
+    """
+    Iterate chart menus and trigger all supported export options for each chart.
+
+    Behavior:
+    - Defines a set of download options per chart (PNG, JPEG, XLSX, JSON).
+    - Expects charts_menu_ids to contain:
+        - 'menu_ids': a list of unique IDs per chart menu.
+        - 'chart_menus': a list of corresponding Playwright Locator instances.
+    - For each chart index:
+        - Scrolls the chart into view.
+        - Opens the menu and selects each export option within the chart’s listbox.
+        - Uses page.expect_download to capture and save the file in tab_dir.
+        - Prints success and error messages for traceability.
+        - Closes menus and scrolls to reveal subsequent charts.
+    - Continues even if individual downloads fail, logging errors per option or chart.
+
+    Parameters:
+        page (playwright.sync_api.Page): Active Playwright page to interact with chart UI.
+        tab_dir (str|pathlib.Path): Destination directory for the chart exports.
+        charts_menu_ids (dict): Structure with:
+            - 'menu_ids' (list[str]): unique IDs for the chart menus.
+            - 'chart_menus' (list[playwright.sync_api.Locator]): locators for those menus.
+
+    Returns:
+        None
+
+    Side Effects:
+        - Triggers multiple file downloads and writes them to disk.
+        - Performs UI interactions (clicks, scrolls, waits).
+        - Prints diagnostic messages to stdout.
+
+    Example:
+        download_from_charts(page, tab_dir, {
+            "menu_ids": ["123-abc", "456-def"],
+            "chart_menus": [locator1, locator2]
+        })
+    """
     download_options = [
         'Download image - PNG',
         'Download image - JPEG',
@@ -172,43 +368,3 @@ def download_from_charts(page, tab_dir, charts_menu_ids):
         # Stop after processing 4 charts (indices 0, 2, 4, 6)
         if i > 8:
             break
-
-
-def download_from_resources(page, tab_dir, resources_urls):
-    print("[*] Downloading from resources section...")
-    total_resources = len(resources_urls)
-    print(f"Total resources to download: {total_resources}")
-
-    for i, url in enumerate(resources_urls):
-        try:
-            # Parse URL to get filename and extension
-            filename = os.path.basename(url)
-            name, ext = os.path.splitext(filename)
-            ext = ext.lower()
-            
-            print(f"    [→] Processing resource {i+1}: {filename}")
-            
-            if ext == '.pdf':
-                # Create empty PDF file
-                filepath = os.path.join(tab_dir, filename)
-                os.makedirs(tab_dir, exist_ok=True)  # Ensure directory exists
-                with open(filepath, 'w') as f:
-                    pass  # Create empty file
-                print(f"    [✅] Created empty PDF: {filename}")
-            else:
-                # Find and click the download link
-                link_locator = page.locator(f"a[href='{url}']")
-                
-                if link_locator.count() > 0:
-                    with page.expect_download() as download_info:
-                        link_locator.first.click()
-                    
-                    download = download_info.value
-                    filepath = os.path.join(tab_dir, download.suggested_filename)
-                    download.save_as(filepath)
-                    print(f"    [✅] Downloaded: {download.suggested_filename}")
-                else:
-                    print(f"    [❌] Link not found for: {filename}")
-                    
-        except Exception as e:
-            print(f"    [❌] Failed to process resource {i+1}: {e}")

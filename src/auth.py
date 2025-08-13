@@ -1,7 +1,54 @@
+# -*- coding: utf-8 -*-
+"""
+Authentication utilities for launching a Playwright browser and logging into the SPA.
+
+This module exposes a single function `login_to_spa` that:
+- Starts Playwright (Chromium).
+- Launches a browser with a maximized window (headless mode controlled via configuration).
+- Creates a browser context with HTTP Basic Authentication and a full-screen viewport.
+- Navigates to the login URL and waits for the page to be fully loaded.
+- Handles common UI pop-ups such as newsletter and cookie banners when present.
+
+It returns both the Browser and Page instances for subsequent navigation and actions.
+"""
+
 from playwright.sync_api import sync_playwright
 from config import LOGIN_URL, USERNAME, PASSWORD, HEADLESS
 
+
 def login_to_spa():
+    """
+    Launch a Chromium browser via Playwright, authenticate using HTTP Basic Auth,
+    navigate to the configured SPA login URL, and return the Browser and Page objects.
+
+    Behavior:
+    - Headless mode is controlled by the HEADLESS configuration.
+    - The browser launches maximized and creates a context with HTTP Basic Auth using
+      the configured USERNAME and PASSWORD.
+    - The function navigates to LOGIN_URL and waits for the network to be idle.
+    - Attempts best-effort dismissal of optional UI elements (newsletter banner and
+      cookie consent for "Accept only essential cookies") if they appear.
+    - Prints status messages for diagnostics.
+
+    Returns:
+        tuple:
+            - browser (playwright.sync_api.Browser): The launched Chromium Browser instance.
+            - page (playwright.sync_api.Page): The active Page within the authenticated context.
+
+    Raises:
+        This function internally catches exceptions related to navigation/authentication
+        and prints diagnostic messages. In case of failure, it still returns the
+        (browser, page) pair if available so the caller can decide on next steps.
+
+    Side Effects:
+        - Starts Playwright and launches a browser process.
+        - Prints diagnostic output to stdout.
+        - May interact with and dismiss certain pop-ups on the target page.
+
+    Example:
+        browser, page = login_to_spa()
+        # Use the returned page for further navigation...
+    """
     playwright = sync_playwright().start()
     browser = playwright.chromium.launch(
         headless=HEADLESS,

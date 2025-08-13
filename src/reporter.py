@@ -1,6 +1,59 @@
+# -*- coding: utf-8 -*-
+"""
+Reporting utilities for download validation.
+
+This module prints a human-readable report summarizing validation results
+returned by the validator component, including counts, success rates, lists of
+missing/extra/zero-size files, and basic size/format statistics.
+"""
+
+
 def generate_report(validation_results):
     """
-    Display validation results in a formatted, readable way
+    Render a formatted report of download validation results.
+
+    Behavior:
+    - Iterates over tabs in the provided results and prints:
+        - Expected, downloaded, matched, missing, extra, and zero-size counts.
+        - Success rate (matched/expected) when expected > 0.
+        - Detailed lists of missing, extra, and zero-size files when present.
+        - Aggregate totals (bytes) and average file size for downloaded files.
+        - A breakdown by file format/extension.
+    - Uses simple console output with clear section headers and icons.
+
+    Parameters:
+        validation_results (dict): Structured results per tab. Expected keys per tab:
+            - expected_count (int)
+            - downloaded_count (int)
+            - matched_count (int)
+            - missing_files (list[str])
+            - extra_files (list[str])
+            - zero_size_count (int)
+            - zero_size_files (list[str])
+            - downloaded_details (list[dict]): each item contains:
+                - size (int): size in bytes
+                - format (str|None): file extension without dot or None
+
+    Returns:
+        None
+
+    Side Effects:
+        - Prints a multi-section report to stdout.
+
+    Example:
+        results = {
+            "Open Data in Europe 2024": {
+                "expected_count": 10,
+                "downloaded_count": 9,
+                "matched_count": 9,
+                "missing_files": ["file_a.json"],
+                "extra_files": [],
+                "zero_size_count": 1,
+                "zero_size_files": ["file_b.pdf"],
+                "downloaded_details": [{"size": 1024, "format": "json"}]
+            }
+        }
+        generate_report(results)
     """
     print("\n" + "=" * 80)
     print("📊 DOWNLOAD VALIDATION REPORT")
@@ -74,7 +127,23 @@ def generate_report(validation_results):
 
 
 def format_file_size(size_bytes):
-    """Convert bytes to human readable format"""
+    """
+    Convert a byte count into a human-readable size string.
+
+    Parameters:
+        size_bytes (int|float): The size in bytes.
+
+    Returns:
+        str: A string with an appropriate unit, e.g., "0 B", "1.5 KB", "2.0 MB",
+        "3.1 GB", or "4.0 TB".
+
+    Notes:
+        - Uses a 1024-based progression for units.
+        - Rounds to one decimal place.
+
+    Example:
+        format_file_size(1536) -> "1.5 KB"
+    """
     if size_bytes == 0:
         return "0 B"
 
