@@ -14,6 +14,10 @@ These helpers are intended to be called by higher-level tab-specific workflows.
 
 
 import os
+import re
+from pathlib import PurePosixPath
+from urllib.parse import urlparse
+from config import ENVIRONMENT
 
 ########################################
 # Retrieve ids for charts and resources
@@ -153,17 +157,16 @@ def retrieve_resources_files_ids(page, tab_name):
             indices = range(0, 3)
             resources_file_ids_tab = [download_links.nth(i).get_attribute('href') for i in indices]
         case 'Recommendations':
-            # 🚨TODO: To implement to download resources when in PROD
-            indices = range(3, 11)
-            # resources_file_ids_tab = [download_links.nth(i).get_attribute('href') for i in indices]
+            indices = range(3, 4)
+            resources_file_ids_tab = [download_links.nth(i).get_attribute('href') for i in indices]
         case 'Dimensions':
-            indices = range(3, 11)
+            indices = range(3, 11) if ENVIRONMENT == 'DEV' else range(4, 12)
             resources_file_ids_tab = [download_links.nth(i).get_attribute('href') for i in indices]
         case 'Country profiles':
-            indices = range(11, 31)
+            indices = range(11, 31) if ENVIRONMENT == 'DEV' else range(12, 80)
             resources_file_ids_tab = [download_links.nth(i).get_attribute('href') for i in indices]
         case 'Method and resources':
-            indices = range(31, 41)
+            indices = range(31, 41) if ENVIRONMENT == 'DEV' else range(80, 91)
             resources_file_ids_tab = [download_links.nth(i).get_attribute('href') for i in indices]
 
     return resources_file_ids_tab
@@ -211,7 +214,7 @@ def download_from_resources(page, tab_dir, resources_urls):
         urls = ["https://example.test/file.json", "https://example.test/doc.pdf"]
         download_from_resources(page, tab_dir, urls)
     """
-    print("[*] Downloading from resources section...")
+    print("\n[*] Downloading from resources section...")
     total_resources = len(resources_urls)
     print(f"Total resources to download: {total_resources}")
 
@@ -238,7 +241,7 @@ def download_from_resources(page, tab_dir, resources_urls):
                 if link_locator.count() > 0:
                     with page.expect_download() as download_info:
                         link_locator.first.click()
-                    
+
                     download = download_info.value
                     filepath = os.path.join(tab_dir, download.suggested_filename)
                     download.save_as(filepath)
@@ -306,7 +309,7 @@ def download_from_charts(page, tab_dir, charts_menu_ids):
             chart_menu = charts_menu_ids['chart_menus'][i]
             chart_menu_id = charts_menu_ids['menu_ids'][i]
 
-            print(f"[*] Downloading from {num_charts} chart(s)...")
+            print(f"\n[*] Downloading from {num_charts} chart(s)...")
 
             id_prefix = chart_menu_id.split('-')[0]  # Extract prefix like "795"
             
@@ -314,14 +317,14 @@ def download_from_charts(page, tab_dir, charts_menu_ids):
             
             # Make sure the chart is visible
             chart_menu.scroll_into_view_if_needed()
-            page.wait_for_timeout(500)
+            # page.wait_for_timeout(500)   To enable if you see is too fast for the browser interactions
             
             # Process each download option for this chart
             for option_text in download_options:
                 try:
                     # Open the dropdown menu
                     chart_menu.click()
-                    page.wait_for_timeout(1000)
+                    # page.wait_for_timeout(1000)    To enable if you see is too fast for the browser interactions
                     print(f"    [→] Clicking on: {option_text}")
                     
                     # Find the listbox that appears when menu is clicked
@@ -336,7 +339,7 @@ def download_from_charts(page, tab_dir, charts_menu_ids):
                             # Click with download expectation
                             with page.expect_download() as download_info:
                                 option.click()
-                                # page.wait_for_timeout(1500)
+                                # page.wait_for_timeout(1500)    To enable if you see is too fast for the browser interactions
                             
                             # Process the download
                             download = download_info.value
@@ -351,7 +354,7 @@ def download_from_charts(page, tab_dir, charts_menu_ids):
                         
                     # Close the menu by clicking elsewhere
                     page.mouse.click(0, 0)
-                    page.wait_for_timeout(500)
+                    # page.wait_for_timeout(500)    To enable if you see is too fast for the browser interactions
                     
                 except Exception as e:
                     print(f"[❌] Error with option '{option_text}': {e}")
@@ -360,7 +363,7 @@ def download_from_charts(page, tab_dir, charts_menu_ids):
             
             # Scroll down to reveal next chart
             page.mouse.wheel(0, 1500)
-            page.wait_for_timeout(1000)
+            # page.wait_for_timeout(1000)    To enable if you see is too fast for the browser interactions
             
         except Exception as e:
             print(f"[❌] Failed for chart {i//2 + 1}: {e}")
@@ -368,3 +371,33 @@ def download_from_charts(page, tab_dir, charts_menu_ids):
         # Stop after processing 4 charts (indices 0, 2, 4, 6)
         if i > 8:
             break
+
+
+
+################################
+# Download helper functions
+################################
+def build_key(url: str):
+    """
+    Sort key: (country_slug, type_order)
+    - country_slug: parsed from the filename, e.g. "albania", "bosnia_and_herzegovina"
+    - type_order: 0 for factsheet, 1 for questionnaire (so factsheet comes first)
+    """
+    # last path segment (filename)
+    name = PurePosixPath(urlparse(url).path or url).name  # e.g. "2024_odm_factsheet_austria_0.pdf"
+    stem = name.rsplit(".", 1)[0]                         # e.g. "2024_odm_factsheet_austria_0"
+
+    # match "YYYY_odm_(factsheet|questionnaire)_(country...)" with optional trailing "_0"
+    m = re.match(r"^\d{4}_odm_(factsheet|questionnaire)_(.+)$", stem, flags=re.I)
+    if not m:
+        # Fallback: if pattern doesn't match, just use the whole stem and put it last
+        return (stem.lower(), 2)
+
+    doc_type = m.group(1).lower()         # "factsheet" or "questionnaire"
+    country = m.group(2).lower()          # e.g. "austria_0" or "bosnia_and_herzegovina"
+
+    # normalize trailing suffix like _0, _1, _a25, etc.
+    country = re.sub(r'_[0-9a-zA-Z]+$', '', country)
+
+    type_order = 0 if doc_type == "factsheet" else 1
+    return (country, type_order)

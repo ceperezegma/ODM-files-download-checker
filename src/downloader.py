@@ -13,7 +13,7 @@ It also ensures a tab-specific output directory exists before starting the proce
 
 import os
 from pathlib import Path
-from src.utils import retrieve_chart_menu_ids, download_from_resources, download_from_charts, retrieve_resources_files_ids, remove_duplicates_resources_id
+from src.utils import retrieve_chart_menu_ids, download_from_resources, download_from_charts, retrieve_resources_files_ids, remove_duplicates_resources_id, build_key
 from src.tab_visitor import retrieve_buttons, select_button
 from config import DOWNLOAD_DIR
 
@@ -95,7 +95,7 @@ def download_all_files(page, tab_name):
             print(f"Nothing to check here for charts!")
 
             # Download resources
-            resources_urls_tabs = retrieve_resources_files_ids(page, tab_name)
+            resources_urls_tabs = retrieve_resources_files_ids(page, tab_name, )
             resources_urls_tabs_clean = remove_duplicates_resources_id(resources_urls_tabs)
             download_from_resources(page, tab_dir, resources_urls_tabs_clean)
         case 'Dimensions':
@@ -109,10 +109,10 @@ def download_all_files(page, tab_name):
                 charts_menus_ids = retrieve_chart_menu_ids(page, tab_name)
                 download_from_charts(page, tab_dir, charts_menus_ids['dimensions'])
 
-                # Download resources
-                resources_urls_tabs = retrieve_resources_files_ids(page, tab_name)
-                resources_urls_tabs_clean = remove_duplicates_resources_id(resources_urls_tabs)
-                download_from_resources(page, tab_dir, resources_urls_tabs_clean)
+            # Download resources
+            resources_urls_tabs = retrieve_resources_files_ids(page, tab_name)
+            resources_urls_tabs_clean = remove_duplicates_resources_id(resources_urls_tabs)
+            download_from_resources(page, tab_dir, resources_urls_tabs_clean)
         case 'Country profiles':
             countries = combined = [
                 ('Albania', 'AL'),
@@ -152,14 +152,19 @@ def download_all_files(page, tab_name):
 
             country_buttons = retrieve_buttons(page, countries, 'countries')
             num_countries = len(country_buttons)
+
+            # Retrieve URLs to download resources, remove duplicates and sort them to match the sorted list of countries in ODM
+            resources_urls_tabs = retrieve_resources_files_ids(page, tab_name)
+            resources_urls_tabs_clean = remove_duplicates_resources_id(resources_urls_tabs)
+            resources_urls_tab_sorted = sorted(resources_urls_tabs_clean, key=build_key)
+
             for i in range(num_countries):
                 select_button(page, country_buttons[i], countries[i])
                 charts_menus_ids = retrieve_chart_menu_ids(page, tab_name)
                 download_from_charts(page, tab_dir, charts_menus_ids['country_profiles'])
 
-                resources_urls_tabs = retrieve_resources_files_ids(page, tab_name)
-                resources_urls_tabs_clean = remove_duplicates_resources_id(resources_urls_tabs)
-                download_from_resources(page, tab_dir, resources_urls_tabs_clean)
+                # Download resources
+                download_from_resources(page, tab_dir, resources_urls_tab_sorted[i*2: i*2+2])
         case 'Method and resources':
             print(f"Nothing to check here for charts!")
 
