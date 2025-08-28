@@ -86,18 +86,18 @@ def download_all_files(page, tab_name):
             download_from_charts(page, tab_dir, charts_menus_ids['open_data_in_europe'])
 
             # Download resources
-            resources_urls_tabs = retrieve_resources_files_ids(page, tab_name)
+            resources_urls_tabs, resources_download_tabs = retrieve_resources_files_ids(page, tab_name)
             # Removes duplicates in ids
-            resources_urls_tabs_clean = remove_duplicates_resources_id(resources_urls_tabs)
+            resources_urls_tabs_clean, resources_download_tabs_clean = remove_duplicates_resources_id(resources_urls_tabs, resources_download_tabs)
             # Download resources
-            download_from_resources(page, tab_dir, resources_urls_tabs_clean)
+            download_from_resources(page, tab_dir, resources_urls_tabs_clean, resources_download_tabs_clean)
         case 'Recommendations':
             print(f"Nothing to check here for charts!")
 
             # Download resources
-            resources_urls_tabs = retrieve_resources_files_ids(page, tab_name, )
-            resources_urls_tabs_clean = remove_duplicates_resources_id(resources_urls_tabs)
-            download_from_resources(page, tab_dir, resources_urls_tabs_clean)
+            resources_urls_tabs, resources_download_tabs = retrieve_resources_files_ids(page, tab_name)
+            resources_urls_tabs_clean, resources_download_tabs_clean = remove_duplicates_resources_id(resources_urls_tabs, resources_download_tabs)
+            download_from_resources(page, tab_dir, resources_urls_tabs_clean, resources_download_tabs_clean)
         case 'Dimensions':
             dimensions = ['Policy', 'Portal', 'Quality', 'Impact']
 
@@ -110,9 +110,9 @@ def download_all_files(page, tab_name):
                 download_from_charts(page, tab_dir, charts_menus_ids['dimensions'])
 
             # Download resources
-            resources_urls_tabs = retrieve_resources_files_ids(page, tab_name)
-            resources_urls_tabs_clean = remove_duplicates_resources_id(resources_urls_tabs)
-            download_from_resources(page, tab_dir, resources_urls_tabs_clean)
+            resources_urls_tabs, resources_download_tabs = retrieve_resources_files_ids(page, tab_name)
+            resources_urls_tabs_clean, resources_download_tabs_clean = remove_duplicates_resources_id(resources_urls_tabs, resources_download_tabs)
+            download_from_resources(page, tab_dir, resources_urls_tabs_clean, resources_download_tabs_clean)
         case 'Country profiles':
             countries = combined = [
                 ('Albania', 'AL'),
@@ -154,23 +154,25 @@ def download_all_files(page, tab_name):
             num_countries = len(country_buttons)
 
             # Retrieve URLs to download resources, remove duplicates and sort them to match the sorted list of countries in ODM
-            resources_urls_tabs = retrieve_resources_files_ids(page, tab_name)
-            resources_urls_tabs_clean = remove_duplicates_resources_id(resources_urls_tabs)
-            resources_urls_tab_sorted = sorted(resources_urls_tabs_clean, key=build_key)
+            resources_urls_tabs, resources_download_tabs = retrieve_resources_files_ids(page, tab_name)
+            resources_urls_tabs_clean, resources_download_tabs_clean = remove_duplicates_resources_id(resources_urls_tabs, resources_download_tabs)
+            resources_urls_tabs_sorted = sorted(resources_urls_tabs_clean, key=build_key)
+            resources_download_tabs_sorted = sorted(resources_download_tabs_clean, key=build_key)
 
+            # Download charts
             for i in range(num_countries):
                 select_button(page, country_buttons[i], countries[i])
                 charts_menus_ids = retrieve_chart_menu_ids(page, tab_name)
                 download_from_charts(page, tab_dir, charts_menus_ids['country_profiles'])
 
                 # Download resources
-                download_from_resources(page, tab_dir, resources_urls_tab_sorted[i*2: i*2+2])
+                download_from_resources(page, tab_dir, resources_urls_tabs_sorted[i*2: i*2+2], resources_download_tabs_sorted[i*2: i*2+2])
         case 'Method and resources':
             print(f"Nothing to check here for charts!")
 
             # Download resources
-            resources_urls_tabs = retrieve_resources_files_ids(page, tab_name)
-            resources_urls_tabs_clean = remove_duplicates_resources_id(resources_urls_tabs)
-            download_from_resources(page, tab_dir, resources_urls_tabs_clean)
+            resources_urls_tabs, resources_download_tabs = retrieve_resources_files_ids(page, tab_name)
+            resources_urls_tabs_clean, resources_download_tabs_clean = remove_duplicates_resources_id(resources_urls_tabs, resources_download_tabs)
+            download_from_resources(page, tab_dir, resources_urls_tabs_clean, resources_download_tabs_clean)
 
     print(f"\n[✅] Downloads complete for tab: {tab_name}\n")

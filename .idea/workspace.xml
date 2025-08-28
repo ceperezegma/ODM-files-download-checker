@@ -4,10 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc77512b-8ab7-4006-8447-0cdbe6914e29" name="Changes" comment="Enhanced codebase with detailed documentation">
+    <list default="true" id="fc77512b-8ab7-4006-8447-0cdbe6914e29" name="Changes" comment="Added a">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/expected_files.json" beforeDir="false" afterPath="$PROJECT_DIR$/expected_files.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/downloader.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/downloader.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils.py" afterDir="false" />
     </list>
@@ -55,12 +53,14 @@
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "master",
+    "junie.onboarding.icon.badge.shown": "true",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "settings.editor.selected.configurable": "ml.llm.LLMConfigurable",
+    "to.speed.mode.migration.done": "true",
     "vue.rearranger.settings.migration": "true"
   },
   "keyToStringList": {
@@ -72,8 +72,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-e03c56caf84a-JavaScript-PY-252.23892.439" />
-        <option value="bundled-python-sdk-b3ae9b5d7125-f0eec537fc84-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-252.23892.439" />
+        <option value="bundled-js-predefined-d6986cc7102b-e03c56caf84a-JavaScript-PY-252.23892.515" />
+        <option value="bundled-python-sdk-7e47963ff851-f0eec537fc84-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-252.23892.515" />
       </set>
     </attachedChunks>
   </component>
@@ -98,7 +98,13 @@
       <workItem from="1754907036529" duration="16282000" />
       <workItem from="1755085688391" duration="3633000" />
       <workItem from="1755447927686" duration="44000" />
-      <workItem from="1755501903090" duration="20211000" />
+      <workItem from="1755501903090" duration="21312000" />
+      <workItem from="1755527455873" duration="366000" />
+      <workItem from="1755576054440" duration="452000" />
+      <workItem from="1755578909232" duration="4000" />
+      <workItem from="1755663467111" duration="44000" />
+      <workItem from="1755768440017" duration="7925000" />
+      <workItem from="1756392208793" duration="6800000" />
     </task>
     <task id="LOCAL-00001" summary="Added the ODM downloaded files checker for all charts (Save &amp; share menu)">
       <option name="closed" value="true" />
@@ -140,7 +146,15 @@
       <option name="project" value="LOCAL" />
       <updated>1755089684256</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Modified resources download to take isolate the relevant resources to download by tab, above all for the country profiles tab">
+      <option name="closed" value="true" />
+      <created>1755526293135</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1755526293135</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -163,10 +177,18 @@
     <MESSAGE value="Added feature identifying resource ids in all tabs" />
     <MESSAGE value="Added functionalities to support downloading, validating and reporting for resource files" />
     <MESSAGE value="Enhanced codebase with detailed documentation" />
-    <option name="LAST_COMMIT_MESSAGE" value="Enhanced codebase with detailed documentation" />
+    <MESSAGE value="Modified resources download to take isolate the relevant resources to download by tab, above all for the country profiles tab" />
+    <option name="LAST_COMMIT_MESSAGE" value="Modified resources download to take isolate the relevant resources to download by tab, above all for the country profiles tab" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/validator.py</url>
+          <line>129</line>
+          <option name="timeStamp" value="17" />
+        </line-breakpoint>
+      </breakpoints>
       <default-breakpoints>
         <breakpoint type="python-exception">
           <properties notifyOnTerminate="true" exception="BaseException">
@@ -187,7 +209,7 @@
     <SUITE FILE_PATH="coverage/odm_donwloads_checker$utils.coverage" NAME="utils Coverage Results" MODIFIED="1754327894448" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/odm_donwloads_checker$config.coverage" NAME="config Coverage Results" MODIFIED="1755523694083" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/odm_donwloads_checker$scratch_3.coverage" NAME="scratch_3 Coverage Results" MODIFIED="1755523364021" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$APPLICATION_CONFIG_DIR$/scratches" />
-    <SUITE FILE_PATH="coverage/odm_donwloads_checker$main.coverage" NAME="main Coverage Results" MODIFIED="1755525181353" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/odm_donwloads_checker$main.coverage" NAME="main Coverage Results" MODIFIED="1756398490290" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/odm_donwloads_checker$scratch_2.coverage" NAME="scratch_2 Coverage Results" MODIFIED="1754922369848" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$APPLICATION_CONFIG_DIR$/scratches" />
     <SUITE FILE_PATH="coverage/odm_donwloads_checker$auth.coverage" NAME="auth Coverage Results" MODIFIED="1752156829220" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
   </component>

@@ -116,35 +116,42 @@ def retrieve_chart_menu_ids(page, tab_name):
 
 def retrieve_resources_files_ids(page, tab_name):
     """
-    Discover resource file URLs available in the current tab.
+    Discover resource links and their suggested download filenames for the current tab.
 
     Behavior:
-    - Locates the “Resources” section (or equivalent) in the active tab.
-    - Extracts absolute URLs for downloadable artifacts (e.g., JSON, XLSX, images, PDFs).
-    - Returns a flat list of URLs; a separate helper may remove duplicates before
-      download to avoid redundant work.
+    - Locates resource "Download" anchors in the active tab.
+    - Selects a tab-specific slice of those anchors (index ranges vary per tab and
+      may depend on the ENVIRONMENT setting).
+    - Extracts:
+        - href: absolute URL of the resource.
+        - download: suggested filename provided by the anchor (may be None).
+    - Returns two parallel lists (same order and length): URLs and download values.
+      Duplicates may be present; use remove_duplicates_resources_id() to de-duplicate
+      URLs while keeping the corresponding download values aligned.
 
     Parameters:
-        page (playwright.sync_api.Page): Active Playwright page used to locate
-            resource links.
-        tab_name (str): The tab currently being processed; used to scope the search
-            to the correct section.
+        page (playwright.sync_api.Page): Page used to query and read resource links.
+        tab_name (str): The visible tab name used to determine which anchors to read.
 
     Returns:
-        list[str]: A list of absolute resource URLs discovered on the page.
+        tuple[list[str], list[str|None]]:
+            - resources_file_href_tab: list of absolute resource URLs (never None).
+            - resources_file_download_tab: list of suggested filenames (can be None),
+              aligned by index with the URLs list.
 
     Notes:
-        - Duplicates may be present; call remove_duplicates_resources_id() before
-          passing the list to download_from_resources().
-        - Not all URLs need to be directly downloadable; the downstream downloader
-          handles both regular downloads and placeholder creation for certain types.
+        - The two returned lists always have the same length.
+        - URLs can contain duplicates; download values may be None for some items.
+        - Downstream code may de-duplicate using remove_duplicates_resources_id()
+          before initiating downloads.
 
     Example:
-        urls = retrieve_resources_files_ids(page, "Dimensions")
-        urls = remove_duplicates_resources_id(urls)
-        download_from_resources(page, tab_dir, urls)
+        urls, downloads = retrieve_resources_files_ids(page, "Dimensions")
+        urls_dedup, downloads_dedup = remove_duplicates_resources_id(urls, downloads)
+        # Proceed to download using the deduplicated, aligned lists.
     """
-    resources_file_ids_tab = []
+    resources_file_href_tab = []
+    resources_file_download_tab = []
 
     print("[*] Searching for download buttons...")
 
@@ -155,32 +162,85 @@ def retrieve_resources_files_ids(page, tab_name):
     match tab_name:
         case 'Open Data in Europe 2024':
             indices = range(0, 3)
-            resources_file_ids_tab = [download_links.nth(i).get_attribute('href') for i in indices]
+            resources_file_href_tab = [download_links.nth(i).get_attribute('href') for i in indices]
+            resources_file_download_tab = [download_links.nth(i).get_attribute('download') for i in indices]
         case 'Recommendations':
             indices = range(3, 4)
-            resources_file_ids_tab = [download_links.nth(i).get_attribute('href') for i in indices]
+            resources_file_href_tab = [download_links.nth(i).get_attribute('href') for i in indices]
+            resources_file_download_tab = [download_links.nth(i).get_attribute('download') for i in indices]
         case 'Dimensions':
             indices = range(3, 11) if ENVIRONMENT == 'DEV' else range(4, 12)
-            resources_file_ids_tab = [download_links.nth(i).get_attribute('href') for i in indices]
+            resources_file_href_tab = [download_links.nth(i).get_attribute('href') for i in indices]
+            resources_file_download_tab = [download_links.nth(i).get_attribute('download') for i in indices]
         case 'Country profiles':
             indices = range(11, 31) if ENVIRONMENT == 'DEV' else range(12, 80)
-            resources_file_ids_tab = [download_links.nth(i).get_attribute('href') for i in indices]
+            resources_file_href_tab = [download_links.nth(i).get_attribute('href') for i in indices]
+            resources_file_download_tab = [download_links.nth(i).get_attribute('download') for i in indices]
         case 'Method and resources':
             indices = range(31, 41) if ENVIRONMENT == 'DEV' else range(80, 91)
-            resources_file_ids_tab = [download_links.nth(i).get_attribute('href') for i in indices]
+            resources_file_href_tab = [download_links.nth(i).get_attribute('href') for i in indices]
+            resources_file_download_tab = [download_links.nth(i).get_attribute('download') for i in indices]
 
-    return resources_file_ids_tab
+    return resources_file_href_tab, resources_file_download_tab
 
-def remove_duplicates_resources_id(resources_list):
-    # Remove duplicate strings while preserving order
-    return list(dict.fromkeys(resources_list))
+
+
+def remove_duplicates_resources_id(resources_url_list, resources_download_list):
+    """
+    Remove duplicate URLs while keeping the first occurrence, and drop the
+    corresponding entries from the download list to keep both lists aligned.
+
+    Behavior:
+    - Scans resources_url_list from left to right.
+    - Keeps the first occurrence of each URL and discards subsequent duplicates.
+    - For every discarded duplicate URL, its paired entry in resources_download_list
+      (at the same index) is also discarded.
+    - Preserves the original order of the first occurrences.
+    - The resulting lists have the same length. Download values for retained URLs
+      may be None.
+
+    Parameters:
+        resources_url_list (list[str]): List of resource URLs. Must not contain None.
+        resources_download_list (list[str|None]): List of suggested download filenames
+            (or None) aligned by index with resources_url_list.
+
+    Returns:
+        tuple[list[str], list[str|None]]: A pair of lists containing:
+            - deduplicated URLs (first occurrences only, order preserved),
+            - corresponding download values (may include None), aligned 1:1 with URLs.
+
+    Raises:
+        IndexError: If resources_download_list is shorter than resources_url_list,
+            since items are paired by index.
+
+    Example:
+        urls = ["a.json", "b.json", "a.json"]
+        downloads = ["a.json", "b.json", "a (1).json"]
+        urls_out, downloads_out = remove_duplicates_resources_id(urls, downloads)
+        # urls_out == ["a.json", "b.json"]
+        # downloads_out == ["a.json", "b.json"]
+    """
+
+    seen = set()
+    dedup_urls = []
+    dedup_downloads = []
+    for i, url in enumerate(resources_url_list):
+        if url in seen:
+            continue
+        seen.add(url)
+        download_val = resources_download_list[i]
+        dedup_urls.append(url)
+        dedup_downloads.append(download_val)
+
+    return dedup_urls, dedup_downloads
+
 
 
 
 ################################
 # Download charts and resources
 ################################
-def download_from_resources(page, tab_dir, resources_urls):
+def download_from_resources(page, tab_dir, resources_urls, resources_download):
     """
     Download files referenced in the resources section for the current tab.
 
@@ -224,10 +284,12 @@ def download_from_resources(page, tab_dir, resources_urls):
             filename = os.path.basename(url)
             name, ext = os.path.splitext(filename)
             ext = ext.lower()
-            
+
             print(f"    [→] Processing resource {i+1}: {filename}")
             
             if ext == '.pdf':
+                if resources_download[i] is not None:
+                    filename = resources_download[i]
                 # Create empty PDF file
                 filepath = os.path.join(tab_dir, filename)
                 os.makedirs(tab_dir, exist_ok=True)  # Ensure directory exists
