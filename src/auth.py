@@ -13,7 +13,7 @@ It returns both the Browser and Page instances for subsequent navigation and act
 """
 
 from playwright.sync_api import sync_playwright
-from config import LOGIN_URL, USERNAME, PASSWORD, HEADLESS
+from config import LOGIN_URL, USERNAME, PASSWORD, HEADLESS, ENVIRONMENT
 
 
 def login_to_spa():
@@ -56,41 +56,48 @@ def login_to_spa():
     )
 
     # Create context with HTTP Basic Auth and full screen viewport
-    context = browser.new_context(
-        http_credentials={
-            "username": USERNAME,
-            "password": PASSWORD
-        },
-        viewport={"width": 1920, "height": 1080},
-        no_viewport=True  # Use full screen
-    )
-    
+    if ENVIRONMENT in ('DEV', 'H-PROD'):
+        print('[i] 🔒 You are currently running in a environment protected by credentials.')
+        context = browser.new_context(http_credentials={"username": USERNAME, "password": PASSWORD},
+                                      viewport={"width": 1920, "height": 1080},
+                                      no_viewport=True)  # Use full screen
+    else:
+        print('[i] 🔓 You are currently running in a public environment.')
+        context = browser.new_context(viewport={"width": 1920, "height": 1080},
+                                      no_viewport=True)  # Use full screen
+
     page = context.new_page()
     
     try:
         page.goto(LOGIN_URL)
         page.wait_for_load_state("networkidle")
         print(f"Successfully authenticated and loaded: {page.title()}")
-
-        # Close newsletter popup if it appears
-        try:
-            # Wait up to 3 seconds for the close button to appear
-            page.wait_for_selector("button.close", timeout=3000)
-            page.click("button.close")
-            print("✅ Newsletter banner closed.")
-        except Exception:
-            print("ℹ️ Newsletter banner not found or already dismissed.")
-
-        # Accept only essential cookies if cookie banner is shown
-        try:
-            page.wait_for_selector("button:has-text('Accept only essential cookies')", timeout=3000)
-            page.click("button:has-text('Accept only essential cookies')")
-            print("✅ Cookie consent accepted (only essential cookies).")
-        except Exception:
-            print("ℹ️ Cookie banner not found or already handled.")
-
     except Exception as e:
         print(f"Authentication failed: {e}")
         print("Manual login may be required.")
-    
+
+    # Close newsletter popup if it appears
+    try:
+        # Wait up to 3 seconds for the close button to appear
+        page.wait_for_selector("button.close", timeout=3000)
+        page.click("button.close")
+        print("✅ Newsletter banner closed.")
+    except Exception:
+        print("ℹ️ Newsletter banner not found or already dismissed.")
+
+    # Accept only essential cookies if cookie banner is shown
+    try:
+        page.wait_for_selector("button:has-text('Accept only essential cookies')", timeout=3000)
+        page.click("button:has-text('Accept only essential cookies')")
+        print("✅ Cookie consent accepted (only essential cookies).")
+    except Exception:
+        print("ℹ️ Cookie banner not found or already handled.")
+
+    # Close the survey pop up if it appears
+    try:
+        page.locator('a:has-text("Remind me later")').click()
+        print("✅ Survey participation rejected.")
+    except Exception:
+        print("ℹ️ Survey participation pop-up not found or already handled.")
+
     return browser, page
