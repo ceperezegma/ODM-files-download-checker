@@ -57,7 +57,7 @@ def validate_downloads(expected_files_path):
         json.JSONDecodeError: If the manifest file is not valid JSON.
 
     Example:
-        results = validate_downloads("expected_files.json")
+        results = validate_downloads("expected_files_2024.json")
         # Pass results to the reporting component
     """
     print(f"-------------------------------")
@@ -70,7 +70,7 @@ def validate_downloads(expected_files_path):
     
     # Step 2: Create folder name mapping
     folder_mapping = {
-        "Open_Data_in_Europe_2024": "Open data in Europe 2024",
+        "Open_Data_in_Europe": "Open data in Europe",
         "Recommendations": "Recommendations", 
         "Dimensions": "Dimensions",
         "Country_profiles": "Country profiles",

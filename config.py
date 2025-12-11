@@ -7,15 +7,17 @@ load_dotenv()
 # -------------------------------
 # USER INPUT: Pick environment to work with
 # -------------------------------
-ENVIRONMENT = "PROD" # DEV, H-PROD, or PROD
+ENVIRONMENT = "DEV" # DEV, H-PROD, or PROD
+YEAR = "2025" # "2024"
 
 
-EXPECTED_FILES_PATH = "expected_files.json"
+
+EXPECTED_FILES_PATH = f"data/expected_files_{YEAR}.json"
 DOWNLOAD_DIR = "downloads/"
 
-LOGIN_URL_DEV = "https://edp.dev.agiledrop.com/en/open-data-maturity/2024"
-LOGIN_URL_H_PROD = "https://data.europa.eu/en/open-data-maturity/2024"  # Actual PROD URL homepage behind credentials
-URL_PROD = "https://data.europa.eu/en/open-data-maturity/2024"  # Actual PROD URL homepage without credentials (public access)
+LOGIN_URL_DEV = "https://edp.dev.agiledrop.com/en/open-data-maturity/" + YEAR
+LOGIN_URL_H_PROD = "https://data.europa.eu/en/open-data-maturity/" + YEAR  # Actual PROD URL homepage behind credentials
+URL_PROD = "https://data.europa.eu/en/open-data-maturity/" + YEAR       # Actual PROD URL homepage without credentials (public access)
 
 # Select URL based on environment
 LOGIN_URL = LOGIN_URL_DEV if ENVIRONMENT == "DEV" else LOGIN_URL_H_PROD if ENVIRONMENT == "H-PROD" else URL_PROD

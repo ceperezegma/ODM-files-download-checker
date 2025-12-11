@@ -9,6 +9,7 @@ selection, and reports navigation progress and potential issues.
 """
 
 from src.downloader import download_all_files
+from config import YEAR
 
 
 def visit_all_tabs(page):
@@ -41,7 +42,7 @@ def visit_all_tabs(page):
         visit_all_tabs(page)
     """
     tabs = {
-        'Open Data in Europe 2024': '#open-data-in-europe-2024',
+        'Open Data in Europe': '#open-data-in-europe',
         'Recommendations': '#recommendations',
         'Dimensions': '#dimensions',
         'Country profiles': '#country-profiles',
@@ -79,14 +80,11 @@ def visit_all_tabs(page):
             print(f"[❌] Could not click tab '{tab_name}' with any strategy")
             continue
 
-        # Wait for tab-specific content to load
-        page.wait_for_timeout(1000)  # Short buffer
-        
         # Verify we're on the correct tab by checking URL
         current_url = page.url
         if tab_selector not in current_url:
             print(f"[⚠️] Warning: Expected '{tab_selector}' in URL but got: {current_url}")
             print(f"[!] Tab navigation may have failed for: {tab_name}")
 
-        # Add logic to confirm content changed (by checking unique element)
+        # Add logic to confirm content changed (by checking unique elements)
         download_all_files(page, tab_name)

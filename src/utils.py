@@ -73,7 +73,7 @@ def retrieve_chart_menu_ids(page, tab_name):
     }
 
     # Retrieves all Save & share menus divs by their role and aria-label.
-    # TODO: The result includes more than the Save & share menus in a specif tab -> Needed positional filtering
+    # 🚨NOTE: The result includes more than the Save & share menus in a specif tab -> Needed positional filtering
     chart_menus = page.locator("div[role='combobox'][aria-label='Save & share']")
     total_menus = chart_menus.count()
 
@@ -81,7 +81,7 @@ def retrieve_chart_menu_ids(page, tab_name):
     # List valid ids or all charts in ODM to download
 
     # Save the Save & share menus corresponding to each ODM tab with charts
-    if tab_name == 'Open Data in Europe 2024':
+    if tab_name == 'Open Data in Europe':
         # Get indices 0, 2, 4, 6 (first 4 charts)
         indices = range(0, 7, 2)
         
@@ -90,7 +90,7 @@ def retrieve_chart_menu_ids(page, tab_name):
         save_and_share_ids_tab['open_data_in_europe']['chart_menus'] = [chart_menus.nth(i) for i in indices]
 
         tab = list(save_and_share_ids_tab.keys())[0]
-        print_label = 'Open Data in Europe 2024'
+        print_label = 'Open Data in Europe'
     elif tab_name == 'Dimensions':
         indices = range(8, 11, 2)
         save_and_share_ids_tab['dimensions']['menu_ids'] = [chart_menus.nth(i).get_attribute("id") for i in indices]
@@ -100,7 +100,7 @@ def retrieve_chart_menu_ids(page, tab_name):
         print_label = 'Dimensions'
     elif tab_name == 'Country profiles':
         indices = range(12, 15, 2)
-        # Get indices for Country profiles tab (11-15)
+        # Get indices for Country profiles tab (12-15)
         save_and_share_ids_tab['country_profiles']['menu_ids'] = [chart_menus.nth(i).get_attribute("id") for i in indices]
         save_and_share_ids_tab['country_profiles']['chart_menus'] = [chart_menus.nth(i) for i in indices]
 
@@ -160,7 +160,7 @@ def retrieve_resources_files_ids(page, tab_name):
     print(f"\n[i] Found {count} resources to download")
 
     match tab_name:
-        case 'Open Data in Europe 2024':
+        case 'Open Data in Europe':
             indices = range(0, 3)
             resources_file_href_tab = [download_links.nth(i).get_attribute('href') for i in indices]
             resources_file_download_tab = [download_links.nth(i).get_attribute('download') for i in indices]

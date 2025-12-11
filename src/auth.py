@@ -100,4 +100,11 @@ def login_to_spa():
     except Exception:
         print("ℹ️ Survey participation pop-up not found or already handled.")
 
+     # Close the test pop up if it appears. It appears in DEV only
+    try:
+        page.locator("a", has_text = "Ok, don't show this notice again.").click()
+        print("✅ Test pop-up closed.")
+    except Exception:
+        print("ℹ️ Survey participation pop-up not found or already handled.")
+
     return browser, page
