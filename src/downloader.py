@@ -86,7 +86,7 @@ def download_all_files(page, tab_name):
             # Download charts in the tab
             download_from_charts(page, tab_dir, charts_menus_ids['open_data_in_europe'])
 
-            # Download resources only in PROD environment cause resources in DEV aren't reliable
+            # Download resources only in PROD or not DEV environments cause resources in DEV aren't available
             if ENVIRONMENT != 'DEV':
                 resources_urls_tabs, resources_download_tabs = retrieve_resources_files_ids(page, tab_name)
                 # Removes duplicates in ids

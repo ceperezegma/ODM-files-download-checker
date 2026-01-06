@@ -1,5 +1,7 @@
 import os
+import pandas as pd
 from dotenv import load_dotenv
+
 
 # Load environment variables from .env file
 load_dotenv()
@@ -7,13 +9,17 @@ load_dotenv()
 # -------------------------------
 # USER INPUT: Pick environment to work with
 # -------------------------------
-ENVIRONMENT = "DEV" # DEV, H-PROD, or PROD
+ENVIRONMENT = "PROD" # DEV, H-PROD, or PROD
 YEAR = "2025" # "2024"
 
 
 
 EXPECTED_FILES_PATH = f"data/expected_files_{YEAR}.json"
 DOWNLOAD_DIR = "downloads/"
+
+# Load the hrefs indexes to use to properly target resources in each tab. It's required to handle changes from one year to another. E.g. change in participant countries from year to year
+# TODO: It's possible that in the future we'll need to add to this file indices to properly locate downloads from charts. It'll be required if the design significatively changes. It's used in the file utils.py > retrieve_chart_menu_ids(...)
+RESOURCE_INDEXES = pd.read_csv(os.path.join('data', 'resources_indexes.csv'), sep=';')
 
 LOGIN_URL_DEV = "https://edp.dev.agiledrop.com/en/open-data-maturity/" + YEAR
 LOGIN_URL_H_PROD = "https://data.europa.eu/en/open-data-maturity/" + YEAR  # Actual PROD URL homepage behind credentials

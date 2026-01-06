@@ -17,7 +17,7 @@ import os
 import re
 from pathlib import PurePosixPath
 from urllib.parse import urlparse
-from config import ENVIRONMENT
+from config import YEAR, RESOURCE_INDEXES
 
 ########################################
 # Retrieve ids for charts and resources
@@ -73,7 +73,7 @@ def retrieve_chart_menu_ids(page, tab_name):
     }
 
     # Retrieves all Save & share menus divs by their role and aria-label.
-    # 🚨NOTE: The result includes more than the Save & share menus in a specif tab -> Needed positional filtering
+    # TODO: The result includes more than the Save & share menus in a specif tab -> Needed positional filtering
     chart_menus = page.locator("div[role='combobox'][aria-label='Save & share']")
     total_menus = chart_menus.count()
 
@@ -83,6 +83,7 @@ def retrieve_chart_menu_ids(page, tab_name):
     # Save the Save & share menus corresponding to each ODM tab with charts
     if tab_name == 'Open Data in Europe':
         # Get indices 0, 2, 4, 6 (first 4 charts)
+        # TODO: We use hardcoded indices here. A better solution is to use a table with them to add more flexibility and improve maintainability
         indices = range(0, 7, 2)
         
         # Get all menu IDs and chart menus at once
@@ -161,23 +162,33 @@ def retrieve_resources_files_ids(page, tab_name):
 
     match tab_name:
         case 'Open Data in Europe':
-            indices = range(0, 3)
+            i_min, i_max = RESOURCE_INDEXES.loc[(RESOURCE_INDEXES['tab'] == tab_name) & (RESOURCE_INDEXES['year'] == int(YEAR)) & (RESOURCE_INDEXES['environment'] == 'PROD'), ['i_min', 'i_max']].values[0]
+            indices = range(i_min, i_max)
+
             resources_file_href_tab = [download_links.nth(i).get_attribute('href') for i in indices]
             resources_file_download_tab = [download_links.nth(i).get_attribute('download') for i in indices]
         case 'Recommendations':
-            indices = range(3, 4)
+            i_min, i_max = RESOURCE_INDEXES.loc[(RESOURCE_INDEXES['tab'] == tab_name) & (RESOURCE_INDEXES['year'] == int(YEAR)) & (RESOURCE_INDEXES['environment'] == 'PROD'), ['i_min', 'i_max']].values[0]
+            indices = range(i_min, i_max)
+
             resources_file_href_tab = [download_links.nth(i).get_attribute('href') for i in indices]
             resources_file_download_tab = [download_links.nth(i).get_attribute('download') for i in indices]
         case 'Dimensions':
-            indices = range(3, 11) if ENVIRONMENT == 'DEV' else range(4, 12)
+            i_min, i_max = RESOURCE_INDEXES.loc[(RESOURCE_INDEXES['tab'] == tab_name) & (RESOURCE_INDEXES['year'] == int(YEAR)) & (RESOURCE_INDEXES['environment'] == 'PROD'), ['i_min', 'i_max']].values[0]
+            indices = range(i_min, i_max)
+
             resources_file_href_tab = [download_links.nth(i).get_attribute('href') for i in indices]
             resources_file_download_tab = [download_links.nth(i).get_attribute('download') for i in indices]
         case 'Country profiles':
-            indices = range(11, 31) if ENVIRONMENT == 'DEV' else range(12, 80)
+            i_min, i_max = RESOURCE_INDEXES.loc[(RESOURCE_INDEXES['tab'] == tab_name) & (RESOURCE_INDEXES['year'] == int(YEAR)) & (RESOURCE_INDEXES['environment'] == 'PROD'), ['i_min', 'i_max']].values[0]
+            indices = range(i_min, i_max)
+
             resources_file_href_tab = [download_links.nth(i).get_attribute('href') for i in indices]
             resources_file_download_tab = [download_links.nth(i).get_attribute('download') for i in indices]
         case 'Method and resources':
-            indices = range(31, 41) if ENVIRONMENT == 'DEV' else range(80, 91)
+            i_min, i_max = RESOURCE_INDEXES.loc[(RESOURCE_INDEXES['tab'] == tab_name) & (RESOURCE_INDEXES['year'] == int(YEAR)) & (RESOURCE_INDEXES['environment'] == 'PROD'), ['i_min', 'i_max']].values[0]
+            indices = range(i_min, i_max)
+
             resources_file_href_tab = [download_links.nth(i).get_attribute('href') for i in indices]
             resources_file_download_tab = [download_links.nth(i).get_attribute('download') for i in indices]
 

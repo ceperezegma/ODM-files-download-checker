@@ -9,7 +9,6 @@ selection, and reports navigation progress and potential issues.
 """
 
 from src.downloader import download_all_files
-from config import YEAR
 
 
 def visit_all_tabs(page):
