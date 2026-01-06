@@ -17,7 +17,7 @@ import os
 import re
 from pathlib import PurePosixPath
 from urllib.parse import urlparse
-from config import YEAR, RESOURCE_INDEXES
+from config import YEAR, RESOURCE_INDEXES, CHARTS_INDEXES
 
 ########################################
 # Retrieve ids for charts and resources
@@ -73,7 +73,7 @@ def retrieve_chart_menu_ids(page, tab_name):
     }
 
     # Retrieves all Save & share menus divs by their role and aria-label.
-    # TODO: The result includes more than the Save & share menus in a specif tab -> Needed positional filtering
+    # TODO: The result includes more than the Save & share menus in a specif tab -> To improve it, it needs positional filtering
     chart_menus = page.locator("div[role='combobox'][aria-label='Save & share']")
     total_menus = chart_menus.count()
 
@@ -83,9 +83,9 @@ def retrieve_chart_menu_ids(page, tab_name):
     # Save the Save & share menus corresponding to each ODM tab with charts
     if tab_name == 'Open Data in Europe':
         # Get indices 0, 2, 4, 6 (first 4 charts)
-        # TODO: We use hardcoded indices here. A better solution is to use a table with them to add more flexibility and improve maintainability
-        indices = range(0, 7, 2)
-        
+        i_min, i_max, step = CHARTS_INDEXES.loc[(CHARTS_INDEXES['tab'] == tab_name) & (CHARTS_INDEXES['year'] == int(YEAR)) & (CHARTS_INDEXES['environment'] == 'PROD'), ['i_min', 'i_max', 'step']].values[0]
+        indices = range(i_min, i_max, step)
+
         # Get all menu IDs and chart menus at once
         save_and_share_ids_tab['open_data_in_europe']['menu_ids'] = [chart_menus.nth(i).get_attribute("id") for i in indices]
         save_and_share_ids_tab['open_data_in_europe']['chart_menus'] = [chart_menus.nth(i) for i in indices]
@@ -93,14 +93,18 @@ def retrieve_chart_menu_ids(page, tab_name):
         tab = list(save_and_share_ids_tab.keys())[0]
         print_label = 'Open Data in Europe'
     elif tab_name == 'Dimensions':
-        indices = range(8, 11, 2)
+        i_min, i_max, step = CHARTS_INDEXES.loc[(CHARTS_INDEXES['tab'] == tab_name) & (CHARTS_INDEXES['year'] == int(YEAR)) & (CHARTS_INDEXES['environment'] == 'PROD'), ['i_min', 'i_max', 'step']].values[0]
+        indices = range(i_min, i_max, step)
+
         save_and_share_ids_tab['dimensions']['menu_ids'] = [chart_menus.nth(i).get_attribute("id") for i in indices]
         save_and_share_ids_tab['dimensions']['chart_menus'] = [chart_menus.nth(i) for i in indices]
 
         tab = list(save_and_share_ids_tab.keys())[1]
         print_label = 'Dimensions'
     elif tab_name == 'Country profiles':
-        indices = range(12, 15, 2)
+        i_min, i_max, step = CHARTS_INDEXES.loc[(CHARTS_INDEXES['tab'] == tab_name) & (CHARTS_INDEXES['year'] == int(YEAR)) & (CHARTS_INDEXES['environment'] == 'PROD'), ['i_min', 'i_max', 'step']].values[0]
+        indices = range(i_min, i_max, step)
+
         # Get indices for Country profiles tab (12-15)
         save_and_share_ids_tab['country_profiles']['menu_ids'] = [chart_menus.nth(i).get_attribute("id") for i in indices]
         save_and_share_ids_tab['country_profiles']['chart_menus'] = [chart_menus.nth(i) for i in indices]
