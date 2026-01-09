@@ -4,11 +4,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc77512b-8ab7-4006-8447-0cdbe6914e29" name="Changes" comment="Modified the downloaded checker to work with the previous, current, and future versions of the mini site. Added the resources_indexes.csv dataset file to properly locate downloads for resources.">
-      <change afterPath="$PROJECT_DIR$/data/charts_indexes.csv" afterDir="false" />
+    <list default="true" id="fc77512b-8ab7-4006-8447-0cdbe6914e29" name="Changes" comment="Enhanced chart locator indices by integrating `charts_indexes.csv`, replacing hardcoded values with dynamic indices for improved flexibility and maintainability.">
+      <change afterPath="$PROJECT_DIR$/data/expected_files_previous_editions.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/charts_indexes.csv" beforeDir="false" afterPath="$PROJECT_DIR$/data/charts_indexes.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/resources_indexes.csv" beforeDir="false" afterPath="$PROJECT_DIR$/data/resources_indexes.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/downloader.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/downloader.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/navigator.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/navigator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/reporter.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/reporter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/startup.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/startup.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/validator.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/validator.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -16,7 +24,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="435" />
+    <option name="cachedIndexableFilesCount" value="790" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -66,7 +74,7 @@
     "Python.config.executor": "Run",
     "Python.downloader.executor": "Run",
     "Python.main (1).executor": "Debug",
-    "Python.main.executor": "Run",
+    "Python.main.executor": "Debug",
     "Python.scratch.executor": "Run",
     "Python.scratch_2.executor": "Run",
     "Python.scratch_3.executor": "Run",
@@ -88,7 +96,7 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
+    "settings.editor.selected.configurable": "ml.llm.LLMAIWorkflowsConfigurable",
     "to.speed.mode.migration.done": "true",
     "vue.rearranger.settings.migration": "true"
   },
@@ -243,7 +251,7 @@
       <workItem from="1759404697666" duration="593000" />
       <workItem from="1759405495842" duration="79000" />
       <workItem from="1765402378425" duration="31949000" />
-      <workItem from="1767689260263" duration="26579000" />
+      <workItem from="1767689260263" duration="49538000" />
     </task>
     <task id="LOCAL-00001" summary="Added the ODM downloaded files checker for all charts (Save &amp; share menu)">
       <option name="closed" value="true" />
@@ -349,7 +357,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767714500201</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Enhanced chart locator indices by integrating `charts_indexes.csv`, replacing hardcoded values with dynamic indices for improved flexibility and maintainability.">
+      <option name="closed" value="true" />
+      <created>1767719260029</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1767719260029</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -380,10 +396,23 @@
     <MESSAGE value="Updated auth.py and config.py to add the prod environment enabling the tracker runs on it. Added functionality to close the new popup for taking the DEU survey." />
     <MESSAGE value="Modified the downloaded checker to work with the version 2025 of the mini site as well and future versions." />
     <MESSAGE value="Modified the downloaded checker to work with the previous, current, and future versions of the mini site. Added the resources_indexes.csv dataset file to properly locate downloads for resources." />
-    <option name="LAST_COMMIT_MESSAGE" value="Modified the downloaded checker to work with the previous, current, and future versions of the mini site. Added the resources_indexes.csv dataset file to properly locate downloads for resources." />
+    <MESSAGE value="Enhanced chart locator indices by integrating `charts_indexes.csv`, replacing hardcoded values with dynamic indices for improved flexibility and maintainability." />
+    <option name="LAST_COMMIT_MESSAGE" value="Enhanced chart locator indices by integrating `charts_indexes.csv`, replacing hardcoded values with dynamic indices for improved flexibility and maintainability." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/validator.py</url>
+          <line>84</line>
+          <option name="timeStamp" value="31" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/validator.py</url>
+          <line>98</line>
+          <option name="timeStamp" value="33" />
+        </line-breakpoint>
+      </breakpoints>
       <default-breakpoints>
         <breakpoint type="python-exception">
           <properties notifyOnTerminate="true" exception="BaseException">
@@ -406,7 +435,7 @@
     <SUITE FILE_PATH="coverage/odm_donwloads_checker$scratch.coverage" NAME="scratch Coverage Results" MODIFIED="1753278756047" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$APPLICATION_CONFIG_DIR$/scratches" />
     <SUITE FILE_PATH="coverage/odm_donwloads_checker$utils.coverage" NAME="utils Coverage Results" MODIFIED="1754327894448" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/odm_donwloads_checker$config.coverage" NAME="config Coverage Results" MODIFIED="1759134502065" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/odm_donwloads_checker$main.coverage" NAME="main Coverage Results" MODIFIED="1767717997186" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/odm_donwloads_checker$main.coverage" NAME="main Coverage Results" MODIFIED="1767954906258" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/odm_donwloads_checker$startup.coverage" NAME="startup Coverage Results" MODIFIED="1759141452960" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/odm_donwloads_checker$scratch_4.coverage" NAME="scratch_4 Coverage Results" MODIFIED="1765454107750" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$APPLICATION_CONFIG_DIR$/scratches" />
     <SUITE FILE_PATH="coverage/odm_donwloads_checker$main__1_.coverage" NAME="main (1) Coverage Results" MODIFIED="1765453147727" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

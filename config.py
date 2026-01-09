@@ -10,7 +10,7 @@ load_dotenv()
 # USER INPUT: Pick environment to work with
 # -------------------------------
 ENVIRONMENT = "PROD" # DEV, H-PROD, or PROD
-YEAR = "2025" # "2024"
+YEAR = "2025" # "2024", 2025, ...
 # --------------------------------
 
 EXPECTED_FILES_PATH = f"data/expected_files_{YEAR}.json"
@@ -23,9 +23,13 @@ CHARTS_INDEXES = pd.read_csv(os.path.join('data', 'charts_indexes.csv'), sep=';'
 LOGIN_URL_DEV = "https://edp.dev.agiledrop.com/en/open-data-maturity/" + YEAR
 LOGIN_URL_H_PROD = "https://data.europa.eu/en/open-data-maturity/" + YEAR  # Actual PROD URL homepage behind credentials
 URL_PROD = "https://data.europa.eu/en/open-data-maturity/" + YEAR       # Actual PROD URL homepage without credentials (public access)
+# Starting link for the previous editions
+URL_DEU_DEV = "https://edp.dev.agiledrop.com/en/open-data-maturity/"
+URL_DEU_PROD = "https://data.europa.eu/en/open-data-maturity/"
 
 # Select URL based on environment
 LOGIN_URL = LOGIN_URL_DEV if ENVIRONMENT == "DEV" else LOGIN_URL_H_PROD if ENVIRONMENT == "H-PROD" else URL_PROD
+LOGIN_URL_DEU = URL_DEU_DEV if ENVIRONMENT == "DEV" else URL_DEU_PROD
 
 # Get credentials from environment variables
 USERNAME = os.getenv("USERNAME_ODM_DEV") if ENVIRONMENT == "DEV" else os.getenv("USERNAME_ODM_PROD") if ENVIRONMENT == "H-PROD" else None

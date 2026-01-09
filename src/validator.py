@@ -74,7 +74,8 @@ def validate_downloads(expected_files_path):
         "Recommendations": "Recommendations", 
         "Dimensions": "Dimensions",
         "Country_profiles": "Country profiles",
-        "Method_and_resources": "Method and resources"
+        "Method_and_resources": "Method and resources",
+        "Previous_editions": "Previous editions"
     }
     
     # Step 3: Scan downloaded files
@@ -111,7 +112,7 @@ def validate_downloads(expected_files_path):
         matched_files_list = [f"{name} ({fmt})" for name, fmt in expected_files_set & downloaded_files_set]
         
         # Find zero-size files
-        # TODO: We assume that the PDFs are expected to be empty because created used as proxy to tell they exist in ODM
+        # TODO: Here we assume that the PDFs are expected to be empty because created used as proxy to tell they exist in ODM. It'd nice to add code to download the PDF files as well
         zero_size_files = [file for file in downloaded_list if file["size"] == 0 and file["format"] != "pdf"]
         zero_size_file_names = [file["name"] for file in zero_size_files]
 

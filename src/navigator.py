@@ -9,6 +9,8 @@ selection, and reports navigation progress and potential issues.
 """
 
 from src.downloader import download_all_files
+from config import LOGIN_URL_DEU, ENVIRONMENT
+
 
 
 def visit_all_tabs(page):
@@ -45,7 +47,8 @@ def visit_all_tabs(page):
         'Recommendations': '#recommendations',
         'Dimensions': '#dimensions',
         'Country profiles': '#country-profiles',
-        'Method and resources': '#method-and-resources'
+        'Method and resources': '#method-and-resources',
+        'Previous editions': 'previous-editions'
     }
 
     for tab_name, tab_selector in tabs.items():
@@ -58,10 +61,15 @@ def visit_all_tabs(page):
         
         # Strategy 1: Try href selector
         try:
-            tab_element = page.locator(f"a[href='{tab_selector}']")
-            if tab_element.count() > 0:
-                tab_element.nth(0).click()
-                print(f"[+] Clicked on tab using href: {tab_name}")
+            if tab_selector != 'previous-editions':
+                tab_element = page.locator(f"a[href='{tab_selector}']")
+                if tab_element.count() > 0:
+                    tab_element.nth(0).click()
+                    print(f"[+] Clicked on tab using href: {tab_name}")
+                    clicked = True
+            else:
+                page.goto(LOGIN_URL_DEU + tab_selector + ('%3A2025' if ENVIRONMENT == 'PROD' else ''))  # TODO: To remove the IF conditions in WK3 after code updated in prod
+                print(f"[+] Going to the previous editions page")
                 clicked = True
         except Exception as e:
             print(f"[!] Href strategy failed for {tab_name}: {e}")

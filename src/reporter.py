@@ -73,9 +73,9 @@ def generate_report(validation_results):
 
         print(f"   Expected:   {expected:3d} files")
         print(f"   Downloaded: {downloaded:3d} files")
-        print(f"   ✅ Matched:  {matched:3d} files")
-        print(f"   ❌ Missing:  {missing:3d} files")
-        print(f"   ➕ Extra:    {extra:3d} files")
+        print(f"   ✅ Matched: {matched:3d} files")
+        print(f"   ❌ Missing: {missing:3d} files")
+        print(f"   ➕ Extra:   {extra:3d} files")
         print(f"   ⚠️  Zero size: {zero_size:3d} files - excluding proxy PDF files created for PDF resources")
 
         # Success rate

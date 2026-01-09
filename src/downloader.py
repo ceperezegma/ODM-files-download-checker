@@ -123,11 +123,12 @@ def download_all_files(page, tab_name):
             country_buttons = retrieve_buttons(page, countries, 'countries')
             num_countries = len(country_buttons)
 
-            # Retrieve URLs to download resources, remove duplicates and sort them to match the sorted list of countries in ODM
-            resources_urls_tabs, resources_download_tabs = retrieve_resources_files_ids(page, tab_name)
-            resources_urls_tabs_clean, resources_download_tabs_clean = remove_duplicates_resources_id(resources_urls_tabs, resources_download_tabs)
-            resources_urls_tabs_sorted = sorted(resources_urls_tabs_clean, key=build_key)
-            resources_download_tabs_sorted = sorted(resources_download_tabs_clean, key=build_key)
+            # Don't retrieve resources to download in DEV
+            if ENVIRONMENT != 'DEV':
+                resources_urls_tabs, resources_download_tabs = retrieve_resources_files_ids(page, tab_name)
+                resources_urls_tabs_clean, resources_download_tabs_clean = remove_duplicates_resources_id(resources_urls_tabs, resources_download_tabs)
+                resources_urls_tabs_sorted = sorted(resources_urls_tabs_clean, key=build_key)
+                resources_download_tabs_sorted = sorted(resources_download_tabs_clean, key=build_key)
 
             # Download charts
             for i in range(num_countries):
@@ -145,6 +146,20 @@ def download_all_files(page, tab_name):
             if ENVIRONMENT != 'DEV':
                 resources_urls_tabs, resources_download_tabs = retrieve_resources_files_ids(page, tab_name)
                 resources_urls_tabs_clean, resources_download_tabs_clean = remove_duplicates_resources_id(resources_urls_tabs, resources_download_tabs)
+                download_from_resources(page, tab_dir, resources_urls_tabs_clean, resources_download_tabs_clean)
+        case 'Previous editions':
+            # Retrieve tab ODM Save & share charts menu ids
+            charts_menus_ids = retrieve_chart_menu_ids(page, tab_name)
+
+            # Download charts in the tab
+            download_from_charts(page, tab_dir, charts_menus_ids['previous_editions'])
+
+            # Download resources only in PROD or not DEV environments cause resources in DEV aren't available
+            if ENVIRONMENT != 'DEV':
+                resources_urls_tabs, resources_download_tabs = retrieve_resources_files_ids(page, tab_name)
+                # Removes duplicates in ids
+                resources_urls_tabs_clean, resources_download_tabs_clean = remove_duplicates_resources_id(resources_urls_tabs, resources_download_tabs)
+                # Download resources
                 download_from_resources(page, tab_dir, resources_urls_tabs_clean, resources_download_tabs_clean)
 
     print(f"\n[✅] Downloads complete for tab: {tab_name}\n")

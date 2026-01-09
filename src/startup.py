@@ -38,7 +38,8 @@ def initializer():
         "downloads/Recommendations",
         "downloads/Dimensions",
         "downloads/Method_and_resources",
-        "downloads/Open_Data_in_Europe"
+        "downloads/Open_Data_in_Europe",
+        "downloads/Previous_editions"
     ]
 
     for folder in folders:
