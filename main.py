@@ -19,7 +19,7 @@ from src.navigator import visit_all_tabs
 from src.startup import initializer
 from src.validator import validate_downloads
 from src.reporter import generate_report
-from config import EXPECTED_FILES_PATH
+from config import EXPECTED_FILES_PATH, EXPECTED_FILES_PREVIOUS_EDITIONS_PATH
 
 
 def main():
@@ -53,7 +53,7 @@ def main():
     print("[*] Starting ODM File Checker...")
 
     # Make all the cleaning and setup to start the program from the right inital state
-    # TODO uncomment this line at the end: initializer()
+    # initializer()
 
     # Step 1: Log in and get browser/page
     # browser, page = login_to_spa()
@@ -62,7 +62,7 @@ def main():
     # visit_all_tabs(page)
 
     # Step 3: Validate downloaded files
-    validation_results = validate_downloads(EXPECTED_FILES_PATH)
+    validation_results = validate_downloads()
 
     # Step 4: Generate report
     generate_report(validation_results)
@@ -74,8 +74,8 @@ def main():
     print(f"\n[i] Total execution time: {int(minutes)} minutes and {seconds:.2f} seconds")
     
     # Keep browser open
-    input("Press Enter to close browser and exit...")
-    browser.close()
+    input("Press Enter to exit...")
+    # browser.close()
 
 
 if __name__ == "__main__":

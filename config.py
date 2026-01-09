@@ -14,6 +14,7 @@ YEAR = "2025" # "2024", 2025, ...
 # --------------------------------
 
 EXPECTED_FILES_PATH = f"data/expected_files_{YEAR}.json"
+EXPECTED_FILES_PREVIOUS_EDITIONS_PATH = "data/expected_files_previous_editions.json"
 DOWNLOAD_DIR = "downloads/"
 
 # Load the hrefs indexes to use to properly target resources in each tab. It's required to handle changes from one year to another. E.g. change in participant countries from year to year

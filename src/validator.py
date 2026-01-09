@@ -9,15 +9,15 @@ file statistics for downstream reporting.
 
 import json
 from pathlib import Path
-from config import DOWNLOAD_DIR
+from config import DOWNLOAD_DIR, EXPECTED_FILES_PATH, EXPECTED_FILES_PREVIOUS_EDITIONS_PATH
 
 
-def validate_downloads(expected_files_path):
+def validate_downloads():
     """
     Validate downloaded files against an expected manifest.
 
     Workflow:
-    - Reads the expected files specification from a JSON file.
+    - Reads the expected files specification from JSON files.
     - Maps tab folder names on disk to human-readable tab names in the manifest.
     - Scans the tab-specific download folders under the configured root.
     - Builds per-tab file lists with name, format, and size.
@@ -27,12 +27,6 @@ def validate_downloads(expected_files_path):
         - Matched files (intersection).
         - Zero-size files excluding PDFs (PDFs may be intentionally empty).
     - Returns a dictionary keyed by tab name with counts and details used by the reporter.
-
-    Parameters:
-        expected_files_path (str|pathlib.Path): Path to the JSON file that defines
-            the expected files per tab. Each tab maps to a list of items with at least:
-            - name (str): filename
-            - format (str): file extension without dot
 
     Returns:
         dict: A mapping of tab name to validation details:
@@ -57,7 +51,7 @@ def validate_downloads(expected_files_path):
         json.JSONDecodeError: If the manifest file is not valid JSON.
 
     Example:
-        results = validate_downloads("expected_files_2024.json")
+        results = validate_downloads()
         # Pass results to the reporting component
     """
     print(f"-------------------------------")
@@ -65,8 +59,13 @@ def validate_downloads(expected_files_path):
     print(f"-------------------------------")
 
     # Step 1: Read expected files from JSON
-    with open(expected_files_path, 'r') as f:
+    with open(EXPECTED_FILES_PATH, 'r') as f:
         expected_files = json.load(f)
+    
+    with open(EXPECTED_FILES_PREVIOUS_EDITIONS_PATH, 'r') as f:
+        expected_files_prev = json.load(f)
+        # Merge dictionaries
+        expected_files.update(expected_files_prev)
     
     # Step 2: Create folder name mapping
     folder_mapping = {
