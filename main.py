@@ -53,13 +53,13 @@ def main():
     print("[*] Starting ODM File Checker...")
 
     # Make all the cleaning and setup to start the program from the right inital state
-    # initializer()
+    initializer()
 
     # Step 1: Log in and get browser/page
-    # browser, page = login_to_spa()
+    browser, page = login_to_spa()
 
     # Step 2: Navigate all tabs and download files
-    # visit_all_tabs(page)
+    visit_all_tabs(page)
 
     # Step 3: Validate downloaded files
     validation_results = validate_downloads()
